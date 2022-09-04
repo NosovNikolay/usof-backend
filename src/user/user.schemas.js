@@ -1,13 +1,21 @@
 const createUser = {
     body: {
         type: 'object',
-        required: [ 'username', 'password' ],
+        required: [ 'login', 'password', 'email'],
         properties: {
-            username: {
+            login: {
                 type: 'string'
             },
             password: {
+                type: 'string',
+                maxLength: 16,
+                minLength: 8
+            },
+            email: {
                 type: 'string'
+            },
+            full_name: {
+                type: ['string', 'null']
             }
         },
         additionalProperties: false
@@ -22,7 +30,8 @@ const createUser = {
                 userId: { type: 'string' }
             },
             additionalProperties: false
-        }
+        },
+
     }
 }
 
@@ -45,10 +54,11 @@ const getUser = {
                 role: { type: 'string' },
             },
             additionalProperties: false
-        }
+        },
     }
 }
 
 export const userSchema = {
-    getUser: getUser
+    getUser,
+    createUser,
 }
