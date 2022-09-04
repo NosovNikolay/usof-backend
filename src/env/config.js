@@ -4,4 +4,5 @@ import 'dotenv/config'
 export const env = cleanEnv(process.env, {
     PORT:            num(),
     DATABASE_URL:        str(),
+    SECRET_KEY:       str()
 })
