@@ -12,9 +12,12 @@ datasource db {
 
 model User {
   id    Int     @id @default(autoincrement())
+  email String @unique
+  isActivated Boolean @default(false)
   login String  @unique
-  full_name  String
-  rating Int
+  password String
+  full_name  String?
+  rating Int       @default(0)
   role    Role     @default(USER)
 }
 
