@@ -1,9 +1,4 @@
-export const userShema = {
-    getUser: getUser
-}
-
-
-const getUser = {
+const createUser = {
     body: {
         type: 'object',
         required: [ 'username', 'password' ],
@@ -29,4 +24,31 @@ const getUser = {
             additionalProperties: false
         }
     }
+}
+
+const getUser = {
+    querystring: {
+        type: 'object',
+        required: ['login'],
+        properties: {
+            login: { type: 'string' },
+        }
+    },
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                id : { type: 'number' },
+                login: { type: 'string' },
+                full_name: { type: 'string' },
+                rating: { type: 'number' },
+                role: { type: 'string' },
+            },
+            additionalProperties: false
+        }
+    }
+}
+
+export const userSchema = {
+    getUser: getUser
 }
