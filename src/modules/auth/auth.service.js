@@ -1,8 +1,8 @@
 import createError from "@fastify/error";
-import {userService} from "../user.service.js"
+import {usersService} from "../users/users.service.js"
 import {blockList} from "./auth.blocklist.js";
-import {confirmAccount} from "../../../emailer/email.sender.js"
-import {prisma} from "../../../dbConnector/db.js";
+import {confirmAccount} from "../../emailer/email.sender.js"
+import {prisma} from "../../dbConnector/db.js";
 import * as bcrypt from 'bcrypt'
 
 export class AuthService {
@@ -13,40 +13,33 @@ export class AuthService {
 
     async register(userInfo, token) {
         try {
-            const user = await userService.createUser(userInfo);
+            const user = await usersService.createUser(userInfo);
             await confirmAccount(user.email, token);
+            return user;
         } catch (e) {
             return e
         }
     }
 
     async confirm(login) {
-        const user = await userService.updateUser(login);
+        const user = await usersService.updateUser(login);
         return user;
     }
 
     async login(loginInfo) {
-        const user = await userService.getUser(loginInfo.login)
-        if (!user) throw new createError('FST_DB', 'Wrong email or password', 404, )()
-
-        bcrypt.compare(loginInfo.password, user.password, function(err, data) {
-            if (data) {
-                return user
-            } else {
-                return err
-            }
-        })
-
-        // if (!bcrypt.compare(, user.password)) new createError('FST_DB', 'User already registered', 404, )()
-        return user
+        const user = await usersService.getUser(loginInfo.login)
+        if (!user ||
+            !bcrypt.compareSync(loginInfo.password, user.password))
+            throw new createError('FST_DB', 'Wrong email or password', 404, )();
+        return user;
     }
 
     async emailApprove(token) {
         // token parse
         // get login
 
-        // const user = await userService.update({isConfirmed: true})
-        // return user;
+        // const users = await userService.update({isConfirmed: true})
+        // return users;
     }
 
     async logout(token) {

@@ -49,6 +49,5 @@ async function logoutHandler (req, rep) {
 }
 
 async function changePassword (req, rep) {
-
     return authService.changePassword(req.body)
 }

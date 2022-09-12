@@ -1,22 +1,23 @@
-import fp from 'fastify-plugin'
-import fastifyJwt from "@fastify/jwt";
+import jwt from "@fastify/jwt";
 import {env} from '../env/config.js'
-import {blockList} from '../auth/auth.blocklist.js'
+import {blockList} from '../modules/auth/auth.blocklist.js'
+import createError from "@fastify/error";
 
 // Not tested
 export async function jwtMiddleWare(fastify, opts, done) {
-    fastify.register(fastifyJwt, {
+    await fastify.register(jwt, {
         secret: env.SECRET_KEY || 'secretKey',
         signOptions: {
-            expiresIn: '24h'
+            expiresIn: '2h'
         }
     })
-    fastify.decorate("authenticate", async function(request, reply) {
+    fastify.decorate("authenticate", async function(req, rep) {
+        if (blockList.checkIsBlocked(req.headers.auth))
+            rep.send(new createError('FST_AUTH', 'Token already exists', 401))
         try {
-            if (!blockList.checkIsBlocked(request.token))
-                await request.jwtVerify()
+            await req.jwtVerify()
         } catch (err) {
-            reply.send(err)
+            rep.send(err)
         }
     })
     done()

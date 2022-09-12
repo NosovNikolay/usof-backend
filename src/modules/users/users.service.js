@@ -2,7 +2,7 @@ import createError from '@fastify/error'
 import * as bcrypt from 'bcrypt'
 import {prisma} from '../../dbConnector/db.js'
 
-class UserService {
+class UsersService {
 
     constructor(prisma) {
         this.prisma = prisma
@@ -73,4 +73,4 @@ class UserService {
 
 }
 
-export const userService = new UserService(prisma)
+export const usersService = new UsersService(prisma)
