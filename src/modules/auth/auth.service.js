@@ -7,11 +7,11 @@ import * as bcrypt from 'bcrypt'
 
 export class AuthService {
 
-    constructor(prisma) {
+    constructor (prisma) {
         this.prisma = prisma
     }
 
-    async register(userInfo, token) {
+    async register (userInfo, token) {
         try {
             const user = await usersService.createUser(userInfo);
             await confirmAccount(user.email, token);
@@ -21,35 +21,34 @@ export class AuthService {
         }
     }
 
-    async confirm(login) {
-        const user = await usersService.updateUser(login);
+    async confirm (login) {
+        const user = await usersService.confirmUser(login);
         return user;
     }
 
-    async login(loginInfo) {
-        const user = await usersService.getUser(loginInfo.login)
+    async login (loginInfo) {
+        const user = await usersService.getUser({login: loginInfo.login})
         if (!user ||
             !bcrypt.compareSync(loginInfo.password, user.password))
             throw new createError('FST_DB', 'Wrong email or password', 404, )();
         return user;
     }
 
-    async emailApprove(token) {
-        // token parse
-        // get login
-
-        // const users = await userService.update({isConfirmed: true})
-        // return users;
-    }
-
-    async logout(token) {
+    async logout (token) {
         return blockList.blockToken(token)
     }
 
-    async changePassword(userInfo) {
+    async changePassword (userInfo) {
+        try {
+            const user = await usersService.getUser({login: userInfo.login})
+            await confirmAccount(user.email, token);
+            return user;
+        } catch (e) {
+            return e
+        }
     }
 
-    async changePasswordApprove(token) {
+    async changePasswordApprove (token) {
 
     }
 }

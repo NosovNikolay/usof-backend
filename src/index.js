@@ -7,23 +7,31 @@ import {jwtMiddleWare} from "./middleware/jwt.auth.middleware.js"
 import fp from "fastify-plugin"
 import {authRouter} from "./modules/auth/auth.router.js";
 import {cloudinaryDecorate} from "./cloudinaty/cloudinary.js"
-import multer from "fastify-multer";
+import {adminPermissionMiddleware} from "./middleware/admin.permission.middleware.js"
 
 const fastify = Fastify({
     logger: true,
 })
 
 fastify.register(fp(jwtMiddleWare))
+fastify.register(fp(adminPermissionMiddleware))
 fastify.register(fp(cloudinaryDecorate))
 fastify.register(usersRouter)
 fastify.register(authRouter)
+
 // TODO:
 // add image/png parser
 // fastify.addContentTypeParser('image/png', function (request, payload, done) {
 //     done()
 // })
 
-
+// fastify.get('/',
+//     {
+//         onRequest: [fastify.authenticate]
+//     }
+//     ,  async (req, res) => {
+//     console.log(req.user)
+// })
 
 async function start () {
     try {

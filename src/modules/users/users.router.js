@@ -1,26 +1,33 @@
 import {userSchema} from "./users.schemas.js";
 import {usersService} from "./users.service.js"
+import {authService} from "../auth/auth.service.js";
+import createError from "@fastify/error";
 
 export async function usersRouter (fastify, options) {
     // TODO: add middleware after jwt auth
     //onRequest: fastify.authenticate
 
     // {schema: userSchema.getUser, onRequest: [fastify.authenticate]}
-    fastify.get('/api/users' , getUsersHandler)
+    fastify.get('/api/users' , {
+        onRequest: [fastify.authenticate]
+    },  getUsersHandler)
 
-    fastify.get('/api/users/:id', async (request, reply) => {
-        return usersService.getUserById(request.params.id);
+    fastify.get('/api/users/:id', async (req, rep) => {
+        return usersService.getUser({id: req.params.id});
     })
 
-    fastify.post('/api/user', {schema: userSchema.createUser}, async (request, reply) => {
+    // schema replace JOI
+    fastify.post('/api/users', {onRequest: [fastify.authenticate, fastify.admin], schema: userSchema.createUser}, async (request, reply) => {
         return usersService.createUser(request.body)
     })
 
-    fastify.patch('/api/user/:id', {schema: userSchema.getUser}, async (request, reply) => {
-    })
+    fastify.patch("/api/users/:id", patchUserHandler)
 
-    fastify.delete('/api/user/:id', {schema: userSchema.getUser}, async (request, reply) => {
-    })
+    // fastify.patch('/api/users/avatar', {schema: userSchema.getUser}, async (request, reply) => {
+    //
+    // })
+
+    fastify.delete('/api/users/:id',{ onRequest: fastify.authenticate}, deleteUserHandler)
 
     // fastify.patch('/api/users/avatar', {preHandler: fastify.multer.parser.single('upload'),} , async (req, res) => {
     //     console.log(req)
@@ -73,6 +80,12 @@ export async function usersRouter (fastify, options) {
     // });
 }
 
-async function getUsersHandler() {
+async function getUsersHandler(req, res) {
     return usersService.getUsers();
+}
+async function patchUserHandler(req, res) {
+    return usersService.updateUser(req.body)
+}
+async function deleteUserHandler(req, res) {
+    return await usersService.deleteUser(req.params.id)
 }

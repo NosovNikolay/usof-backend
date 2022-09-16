@@ -13,7 +13,7 @@ export async function authRouter (fastify, options) {
 
     fastify.post('/api/auth/logout', logoutHandler)
 
-    fastify.post('/api/auth/password-reset', changePassword)
+    fastify.post('/api/auth/password-reset', changePasswordHandler)
 
     fastify.get('/api/auth/password-reset/:confirm_token', async (request, reply) => {
         reply.send({ token: authService.changePasswordApprove()})
@@ -39,7 +39,7 @@ async function registrationConfirmationHandler(req, rep) {
 async function loginHandler (req, rep) {
     const user = await authService.login(req.body)
     if (user)
-        return {token: this.jwt.sign({login: user.login, id: user.id})}
+        return {token: this.jwt.sign({login: user.login, id: user.id, role: user.role})}
     return new createError('FST_LOGIN', 'Wrong email or password', 403)
 }
 
@@ -48,6 +48,8 @@ async function logoutHandler (req, rep) {
         .status(200)
 }
 
-async function changePassword (req, rep) {
-    return authService.changePassword(req.body)
+async function changePasswordHandler (req, rep) {
+    if (req.body.login !== req.user.login)
+        new createError('FST_LOGIN', 'You are not able to change password for this acc', 403)
+
 }

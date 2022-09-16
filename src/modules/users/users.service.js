@@ -8,21 +8,14 @@ class UsersService {
         this.prisma = prisma
     }
 
-    async getUser(login) {
-        return await this.prisma.user.findUnique({
-            where: {
-                login
-            }
-        })
-    }
-
-    async getUserById(id) {
-        id = Number(id)
-        return await this.prisma.user.findUnique({
-            where: {
-                id
-            }
-        })
+    async getUser(userInfo) {
+        try {
+            return await this.prisma.user.findUnique({
+                where: userInfo
+            })
+        } catch (e) {
+            throw new createError('FST_DB', 'Wrong dataObj, try {id: ..., login: ...}', 409, )();
+        }
     }
 
     async getUsers () {
@@ -40,7 +33,7 @@ class UsersService {
         }
     }
 
-    async updateUser(login) {
+    async confirmUser(login) {
         try {
             const user = await this.prisma.user.update({
                 where: {
@@ -57,11 +50,29 @@ class UsersService {
         }
     }
 
-    async deleteUser(login) {
+    async updateUser (userData) {
+        try {
+            return await this.prisma.user.update({
+                where: {
+                    id: userData.id
+                },
+                data: userData,
+            });
+        } catch (e) {
+            // need to create custom error handler with db replies
+            throw new createError('FST_DB', 'Cannot change user', 409)();
+        }
+    }
+
+    async updateRating (userId, rating) {
+
+    }
+
+    async deleteUser(id) {
         try {
             const user = await this.prisma.user.delete({
                 where: {
-                    login
+                    id
                 }
             })
             return user;
@@ -70,7 +81,6 @@ class UsersService {
             throw new createError('FST_DB', 'Cannot confirm users', 409, )();
         }
     }
-
 }
 
 export const usersService = new UsersService(prisma)

@@ -25,13 +25,11 @@ const createUser = {
         // by the following schema
         200: {
             type: 'object',
-            required: [ 'userId' ],
             properties: {
                 userId: { type: 'string' }
             },
             additionalProperties: false
         },
-
     }
 }
 
