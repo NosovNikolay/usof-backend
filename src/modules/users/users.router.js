@@ -3,21 +3,23 @@ import {usersService} from "./users.service.js"
 import {authService} from "../auth/auth.service.js";
 import createError from "@fastify/error";
 
-export async function usersRouter (fastify, options) {
+export async function usersRouter(fastify, options) {
     // TODO: add middleware after jwt auth
     //onRequest: fastify.authenticate
 
     // {schema: userSchema.getUser, onRequest: [fastify.authenticate]}
-    fastify.get('/api/users' , {
-        onRequest: [fastify.authenticate]
-    },  getUsersHandler)
+    fastify.get('/api/users',
+        {onRequest: [fastify.authenticate, fastify.admin]}, getUsersHandler)
 
     fastify.get('/api/users/:id', async (req, rep) => {
         return usersService.getUser({id: req.params.id});
     })
 
     // schema replace JOI
-    fastify.post('/api/users', {onRequest: [fastify.authenticate, fastify.admin], schema: userSchema.createUser}, async (request, reply) => {
+    fastify.post('/api/users', {
+        onRequest: [fastify.authenticate, fastify.admin],
+        schema: userSchema.createUser
+    }, async (request, reply) => {
         return usersService.createUser(request.body)
     })
 
@@ -27,7 +29,7 @@ export async function usersRouter (fastify, options) {
     //
     // })
 
-    fastify.delete('/api/users/:id',{ onRequest: fastify.authenticate}, deleteUserHandler)
+    fastify.delete('/api/users/:id', {onRequest: fastify.authenticate}, deleteUserHandler)
 
     // fastify.patch('/api/users/avatar', {preHandler: fastify.multer.parser.single('upload'),} , async (req, res) => {
     //     console.log(req)
@@ -83,9 +85,13 @@ export async function usersRouter (fastify, options) {
 async function getUsersHandler(req, res) {
     return usersService.getUsers();
 }
+
 async function patchUserHandler(req, res) {
-    return usersService.updateUser(req.body)
+    if (req.user.id === req.body.id)
+        return usersService.updateUser(req.body)
+    throw new createError('FST_PERMISSION', 'You are not allowed to update this profile', 403)
 }
+
 async function deleteUserHandler(req, res) {
     return await usersService.deleteUser(req.params.id)
 }

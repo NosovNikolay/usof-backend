@@ -13,11 +13,12 @@ export class AuthService {
 
     async register (userInfo, token) {
         try {
+            userInfo.role = 'USER';
             const user = await usersService.createUser(userInfo);
             await confirmAccount(user.email, token);
             return user;
         } catch (e) {
-            return e
+            return e;
         }
     }
 
@@ -27,7 +28,7 @@ export class AuthService {
     }
 
     async login (loginInfo) {
-        const user = await usersService.getUser({login: loginInfo.login})
+        const user = await usersService.getUser({login: loginInfo.login});
         if (!user ||
             !bcrypt.compareSync(loginInfo.password, user.password))
             throw new createError('FST_DB', 'Wrong email or password', 404, )();
@@ -35,7 +36,7 @@ export class AuthService {
     }
 
     async logout (token) {
-        return blockList.blockToken(token)
+        return blockList.blockToken(token);
     }
 
     async changePassword (userInfo) {
@@ -44,7 +45,7 @@ export class AuthService {
             await confirmAccount(user.email, token);
             return user;
         } catch (e) {
-            return e
+            return e;
         }
     }
 
