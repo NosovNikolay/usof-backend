@@ -3,6 +3,7 @@ import FastifyMultipart from "@fastify/multipart";
 import chalk from 'chalk';
 import fp from 'fastify-plugin';
 import path from 'path'
+import fs from 'fs';
 import fastifyStatic from '@fastify/static'
 import { fileURLToPath } from 'url';
 
@@ -19,6 +20,8 @@ const fastify = Fastify({
 
 const __filename = fileURLToPath(import.meta.url);
 fastify.__dirname = path.dirname(__filename);
+fastify.__avatars = path.join(fastify.__dirname, '../storage/avatars')
+fastify.__posts = path.dirname(fastify.__dirname, '../storage/posts');
 
 fastify.register(FastifyMultipart, {
     limits: {
@@ -63,4 +66,11 @@ async function start () {
 
 start().then(() => {
     console.log(chalk.green('Server started'));
+    const storage = path.join(fastify.__dirname, '../storage')
+
+    if (!fs.existsSync(storage)) fs.mkdirSync(storage);
+
+    if (!fs.existsSync(storage + '/avatars')) fs.mkdirSync(storage + '/avatars');
+
+    if (!fs.existsSync(storage + '/posts')) fs.mkdirSync(storage + '/posts');
 });

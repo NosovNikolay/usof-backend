@@ -54,14 +54,16 @@ async function deleteUserHandler(req, res) {
 async function uploadAvatarHandler(req, res) {
     const data = await req.file()
     const user = await usersService.getUser({id: data.fields.id.value})
+
     if (!user)
         throw new createError('FST_DB', 'User not found', 404)
 
     data.filename = user.id + `.${data.mimetype.split('/')[1]}`
+
     try {
-        const previousAvatar = fs.statSync(path.join(this.__dirname, '../storage/avatars', data.filename));
+        const previousAvatar = fs.statSync(path.join(this.__avatars, data.filename));
         if (previousAvatar) {
-            fs.unlinkSync(path.join(this.__dirname, '../storage/avatars', data.filename));
+            fs.unlinkSync(path.join(this.__avatars, data.filename));
         }
     } catch (e) {
     }
