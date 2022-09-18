@@ -22,18 +22,21 @@
   "dependencies": {
     "@fastify/error": "^3.0.0",
     "@fastify/jwt": "^6.3.2",
+    "@fastify/multipart": "^7.2.0",
+    "@fastify/static": "^6.5.0",
     "@prisma/client": "^4.3.1",
     "bcrypt": "^5.0.1",
     "chalk": "^5.0.1",
-    "cloudinary": "^1.31.0",
     "dotenv": "^16.0.2",
     "envalid": "^7.3.1",
     "fastify": "^4.5.3",
-    "fastify-multer": "^2.0.3",
     "fastify-plugin": "^4.2.1",
-    "multer-storage-cloudinary": "^4.0.0",
+    "fs": "^0.0.1-security",
     "nodemailer": "^6.7.8",
-    "stream": "^0.0.2"
+    "path": "^0.12.7",
+    "stream": "^0.0.2",
+    "url": "^0.11.0",
+    "util": "^0.12.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.19",
