@@ -13,11 +13,12 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+//read file html + replace token
 export async function confirmAccount(userMail, token) {
     let info = await transporter.sendMail({
-        from: '"Fred Foo 👻" <foo@example.com>', // sender address
+        from: 'Usof API', // sender address
         to: `${userMail}`, // list of receivers
-        subject: "Hello ✔", // Subject line
+        subject: "Hello, confirm your account please", // Subject line
         text: `${env.CONFIRM_ACCOUNT_PATH + token}`, // plain text body
         html: `${env.CONFIRM_ACCOUNT_PATH + token}`, // html body
     });

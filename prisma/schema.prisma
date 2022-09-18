@@ -8,37 +8,65 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(cuid())
-  email String @unique
-  isActivated Boolean @default(false)
-  login String  @unique
-  password String
-  full_name  String?
-  rating Int       @default(0)
-  role    Role     @default(USER)
-
-  posts Post[]
+  id              String    @id @default(uuid())
+  email           String    @unique
+  isActivated     Boolean   @default(false)
+  login           String    @unique
+  password        String
+  full_name       String?
+  rating          Int       @default(0)
+  role            Role      @default(USER)
+  profile_picture String?
+  posts           Post[]
+  Comment         Comment[]
+  Like            Like[]
 }
 
 model Post {
-  id    Int     @id @default(autoincrement())
-  author   User @relation(fields: [authorId], references: [id])
-  authorId Int
-  status Status @deafault(ACTIVE)
-  titel String
-  publishDate        DateTime           @default(now())
-  content String
-  categories Category[]
+  id          String     @id @default(uuid())
+  author      User       @relation(fields: [authorId], references: [id])
+  authorId    String
+  status      Status     @default(ACTIVE)
+  titel       String
+  publishDate DateTime   @default(now())
+  content     String
+  categories  Category[]
+  comments    Comment[]
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  posts Post[]
+  id          String @id @default(uuid())
+  title       String
+  description String
+  posts       Post[]
+}
+
+model Comment {
+  id          String   @id @default(uuid())
+  post        Post     @relation(fields: [postId], references: [id])
+  postId      String
+  author      User     @relation(fields: [authorId], references: [id])
+  authorId    String
+  publishDate DateTime @default(now())
+  content     String
+}
+
+model Like {
+  id           String @id @default(uuid())
+  type         Type
+  author       User   @relation(fields: [authorId], references: [id])
+  authorId     String
+  post_comment String
+}
+
+enum Type {
+  LIKE
+  DISLIKE
 }
 
 enum Status {
-    ACTIVE
-    INACTIVE
+  ACTIVE
+  INACTIVE
 }
 
 enum Role {
