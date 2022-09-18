@@ -25,8 +25,7 @@ class UsersService {
     async createUser(userInfo) {
         try {
             userInfo.password = await bcrypt.hash(userInfo.password, 10)
-            const user = await this.prisma.user.create({ data: userInfo});
-            return user;
+            return await this.prisma.user.create({data: userInfo});
         } catch (e) {
             // need to create custom error handler with db replies
             throw new createError('FST_DB', 'User already exists', 409, )();

@@ -26,7 +26,7 @@ export async function jwtMiddleWare(fastify, opts, done) {
         }
         done()
     })
-
+    //
     fastify.decorate("authenticate", async function(req, rep) {
         try {
             await req.jwtVerify()

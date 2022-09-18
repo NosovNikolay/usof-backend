@@ -6,7 +6,7 @@ export async function authRouter (fastify, options) {
     // onRequest: fastify.authenticate
 
     fastify.post('/api/auth/registration', registrationHandler)
-
+    // send confirmation html
     fastify.get('/api/auth/registration', registrationConfirmationHandler)
 
     fastify.post('/api/auth/login', loginHandler)
@@ -15,18 +15,27 @@ export async function authRouter (fastify, options) {
 
     fastify.post('/api/auth/password-reset', changePasswordHandler)
 
-    fastify.get('/api/auth/password-reset/:confirm_token', async (request, reply) => {
-        reply.send({ token: authService.changePasswordApprove()})
-            .status(200)
+    fastify.get('/api/auth/password-reset', (req, rep) => {
+        rep.sendFile('reset-password.html')
     })
+
+    fastify.post('/api/auth/password-reset/:confirm_token', async (request, reply) => {
+        reply.send({
+            message: 'ZAEBIS',
+            status: 200
+        }).status(200)
+    })
+
+    // fastify.post('/api/auth/password-reset', async (request, reply) => {
+    //     reply.send({ token: authService.changePasswordApprove})
+    //         .status(200)
+    // })
 
 }
 
 async function registrationHandler(req, rep) {
     const token = await rep.jwtSign({ login: req.body.login })
-    const user = await authService.register(req.body, token)
-    return user
-
+    return await authService.register(req.body, token)
 }
 // TODO:
 // Add shadow worker to delete not activated accounts in 2h
@@ -44,12 +53,11 @@ async function loginHandler (req, rep) {
 }
 
 async function logoutHandler (req, rep) {
-    rep.send({ message: await authService.logout(req.headers.authorization.split(' ')[1])})
+    rep.send({ message: await authService.logout(req.auth)})
         .status(200)
 }
 
 async function changePasswordHandler (req, rep) {
     if (req.body.login !== req.user.login)
         new createError('FST_LOGIN', 'You are not able to change password for this acc', 403)
-
 }
