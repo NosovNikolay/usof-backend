@@ -34,26 +34,11 @@ const createUser = {
 }
 
 const getUser = {
-    querystring: {
-        type: 'object',
-        required: ['login'],
-        properties: {
-            login: { type: 'string' },
+    params: {
+        id: {
+            type: 'string'
         }
     },
-    response: {
-        200: {
-            type: 'object',
-            properties: {
-                id : { type: 'number' },
-                login: { type: 'string' },
-                full_name: { type: 'string' },
-                rating: { type: 'number' },
-                role: { type: 'string' },
-            },
-            additionalProperties: false
-        },
-    }
 }
 
 export const userSchema = {

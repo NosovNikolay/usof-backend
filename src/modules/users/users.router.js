@@ -1,4 +1,4 @@
-import {userSchema} from "./users.schemas.js";
+import {userSchema} from "./users.schema.js";
 import {usersService} from "./users.service.js"
 import createError from "@fastify/error";
 
@@ -6,7 +6,13 @@ import util from 'util'
 import path from 'path'
 import {pipeline} from 'stream'
 import fs from 'fs'
-import * as bcrypt from "bcrypt";
+
+// const validatorCompiler = ({ schema, method, url, httpPart }) => {
+//     return data => schema.validate(data)
+// }
+
+
+
 const pump = util.promisify(pipeline)
 
 export async function usersRouter(fastify, options) {
@@ -16,12 +22,12 @@ export async function usersRouter(fastify, options) {
     fastify.get('/api/users',
         {onRequest: [fastify.authenticate, fastify.admin]}, getUsersHandler)
 
-    fastify.get('/api/users/:id', getUserHandler)
+    fastify.get('/api/users/:id', {schema: userSchema.getUser}, getUserHandler)
 
     // schema replace JOI
     fastify.post('/api/users', {
-        onRequest: [fastify.authenticate, fastify.admin],
-        schema: userSchema.createUser
+        // onRequest: [fastify.authenticate, fastify.admin],
+        // schema: userSchema.createUser
     }, async (request, reply) => {
         return usersService.createUser(request.body)
     })
@@ -34,7 +40,9 @@ export async function usersRouter(fastify, options) {
 }
 
 async function getUserHandler(req, rep) {
-    return usersService.getUser({id: req.params.id});
+    const user = await usersService.getUser({id: req.params.id})
+    if (!user) rep.send({message: 'User not found'}).status(404)
+    return user;
 }
 
 async function getUsersHandler(req, res) {
