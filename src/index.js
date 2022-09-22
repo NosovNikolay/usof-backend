@@ -13,6 +13,8 @@ import {usersRouter} from './modules/users/users.router.js';
 import {jwtMiddleWare} from './middleware/jwt.auth.middleware.js';
 import {authRouter} from './modules/auth/auth.router.js';
 import {adminPermissionMiddleware} from './middleware/admin.permission.middleware.js';
+import {categoriesRouter} from "./modules/categories/categories.router.js";
+import {postsRouter} from "./modules/posts/posts.router.js";
 
 const fastify = Fastify({
     logger: true,
@@ -25,19 +27,20 @@ fastify.__posts = path.dirname(fastify.__dirname, '../storage/posts');
 
 fastify.register(FastifyMultipart, {
     limits: {
-        fieldNameSize: 100, // Max field name size in bytes
-        fieldSize: 100,     // Max field value size in bytes
-        fields: 10,         // Max number of non-file fields
-        fileSize: 1000000,  // For multipart forms, the max file size in bytes
-        files: 1,           // Max number of file fields
-        headerPairs: 2000   // Max number of header key=>value pairs
+        fieldNameSize: 100,
+        fieldSize: 100,
+        fields: 10,
+        fileSize: 1000000,
+        files: 1,
+        headerPairs: 2000
     }
 })
 fastify.register(fp(jwtMiddleWare))
 fastify.register(fp(adminPermissionMiddleware))
 fastify.register(usersRouter)
 fastify.register(authRouter)
-
+fastify.register(categoriesRouter)
+fastify.register(postsRouter)
 fastify.register(fastifyStatic, {
     root: path.join(fastify.__dirname, '../static'),
     prefix: '/static/'
@@ -63,11 +66,9 @@ async function start () {
         process.exit(1)
     }
 }
-
 start().then(() => {
     console.log(chalk.green('Server started'));
     const storage = path.join(fastify.__dirname, '../storage')
-
     if (!fs.existsSync(storage)) fs.mkdirSync(storage);
 
     if (!fs.existsSync(storage + '/avatars')) fs.mkdirSync(storage + '/avatars');
