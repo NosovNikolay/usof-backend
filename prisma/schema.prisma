@@ -16,7 +16,6 @@ model User {
   full_name       String?
   rating          Int       @default(0)
   role            Role      @default(USER)
-  profile_picture String?
   posts           Post[]
   Comment         Comment[]
   Like            Like[]
@@ -27,18 +26,27 @@ model Post {
   author      User       @relation(fields: [authorId], references: [id])
   authorId    String
   status      Status     @default(ACTIVE)
-  titel       String
+  title       String
   publishDate DateTime   @default(now())
   content     String
-  categories  Category[]
+  categories  CategoriesOnPosts[]
   comments    Comment[]
 }
 
 model Category {
   id          String @id @default(uuid())
-  title       String
+  title       String @unique
   description String
-  posts       Post[]
+  posts       CategoriesOnPosts[]
+}
+
+model CategoriesOnPosts {
+  post       Post     @relation(fields: [postId], references: [id])
+  postId     String
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String // relation scalar field (used in the `@relation` attribute above)
+
+  @@id([postId, categoryId])
 }
 
 model Comment {
@@ -47,6 +55,7 @@ model Comment {
   postId      String
   author      User     @relation(fields: [authorId], references: [id])
   authorId    String
+  status      Status     @default(ACTIVE)
   publishDate DateTime @default(now())
   content     String
 }
