@@ -69,12 +69,11 @@ class UsersService {
 
     async deleteUser(id) {
         try {
-            const user = await this.prisma.user.delete({
+            return await this.prisma.user.delete({
                 where: {
                     id
                 }
             })
-            return user;
         } catch (e) {
             // need to create custom error handler with db replies
             throw new createError('FST_DB', 'Cannot confirm users', 409, )();
