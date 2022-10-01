@@ -1,7 +1,7 @@
 import createError from "@fastify/error";
 import {usersService} from "../users/users.service.js"
 import {blockList} from "./auth.blocklist.js";
-import {changePassword, confirmAccount} from "../../emailer/email.sender.js"
+import {confirmAccount} from "../../emailer/email.sender.js"
 import {prisma} from "../../dbConnector/db.js";
 import * as bcrypt from 'bcrypt'
 
@@ -47,18 +47,16 @@ export class AuthService {
         return blockList.blockToken(token);
     }
 
-    async changePassword (userInfo) {
-        try {
-            const user = await usersService.getUser({login: userInfo.login})
-            await changePassword(user.email, token);
-            return user;
-        } catch (e) {
-            return e;
-        }
-    }
-
-    async changePasswordApprove (token) {
-
+    async changePasswordApprove (login, newPassword) {
+        newPassword = await bcrypt.hash(newPassword, 10)
+        return await this.prisma.user.update({
+            where: {
+                login
+            },
+            data: {
+                password: newPassword
+            }
+        })
     }
 }
 

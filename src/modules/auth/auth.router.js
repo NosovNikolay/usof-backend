@@ -1,5 +1,8 @@
 import {authService} from "./auth.service.js";
 import createError from "@fastify/error";
+import {usersService} from "../users/users.service.js";
+import {changePassword} from "../../emailer/email.sender.js";
+import {blockList} from "./auth.blocklist.js";
 
 export async function authRouter (fastify, options) {
     // TODO: add middleware after jwt auth
@@ -19,12 +22,7 @@ export async function authRouter (fastify, options) {
         rep.sendFile('reset-password.html')
     })
 
-    fastify.post('/api/auth/password-reset/:confirm_token', async (request, reply) => {
-        reply.send({
-            message: 'ZAEBIS',
-            status: 200
-        }).status(200)
-    })
+    fastify.post('/api/auth/password-reset/confirm', {onRequest: fastify.authenticate }, changePasswordApproveHandler)
 
     // fastify.post('/api/auth/password-reset', async (request, reply) => {
     //     reply.send({ token: authService.changePasswordApprove})
@@ -53,11 +51,21 @@ async function loginHandler (req, rep) {
 }
 
 async function logoutHandler (req, rep) {
-    rep.send({ message: await authService.logout(req.auth)})
+    rep.send({message: await authService.logout(req.auth)})
         .status(200)
 }
 
 async function changePasswordHandler (req, rep) {
-    if (req.body.login !== req.user.login)
-        new createError('FST_LOGIN', 'You are not able to change password for this acc', 403)
+    const user = await usersService.getUser({email: req.body.email})
+    if (user) {
+        await changePassword(user.email, this.jwt.sign({login: user.login, id: user.id}));
+        rep.send({message: 'Email sent. Check your email'}).status(200);
+    }
+    rep.send({message: 'User does not exist'}).status(404);
+}
+async function changePasswordApproveHandler (req, rep) {
+    blockList.blockToken(req.auth)
+    if (await authService.changePasswordApprove(req.user.login, req.body.password))
+        rep.send({message: 'Password changed', status: 200}).status(200)
+    rep.send({message: 'Failed', status: 403}).status(403)
 }
