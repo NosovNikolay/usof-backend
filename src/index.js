@@ -15,6 +15,7 @@ import {authRouter} from './modules/auth/auth.router.js';
 import {adminPermissionMiddleware} from './middleware/admin.permission.middleware.js';
 import {categoriesRouter} from "./modules/categories/categories.router.js";
 import {postsRouter} from "./modules/posts/posts.router.js";
+import {commentsController} from "./modules/comments/comments.controller.js";
 
 const fastify = Fastify({
     logger: true,
@@ -41,6 +42,7 @@ fastify.register(usersRouter)
 fastify.register(authRouter)
 fastify.register(categoriesRouter)
 fastify.register(postsRouter)
+fastify.register(commentsController)
 fastify.register(fastifyStatic, {
     root: path.join(fastify.__dirname, '../static'),
     prefix: '/static/'
