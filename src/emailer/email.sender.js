@@ -37,8 +37,8 @@ export async function changePassword(userMail, token) {
         from: '"Fred Foo 👻" <foo@example.com>', // sender address
         to: `${userMail}`, // list of receivers
         subject: "Hello ✔", // Subject line
-        text: `${env.CONFIRM_ACCOUNT_PATH + token}`, // plain text body
-        html: `${env.CONFIRM_ACCOUNT_PATH + token}`, // html body
+        text: `${env.RESET_PASSWORD_PATH + token}`, // plain text body
+        html: `${env.RESET_PASSWORD_PATH + token}`, // html body
     });
 
     console.log("Message sent: %s", info.messageId);
