@@ -1,5 +1,6 @@
 import createError from '@fastify/error'
 import {prisma} from '../../dbConnector/db.js'
+import {postsService} from '../posts/posts.service.js'
 
 class CategoriesService {
 
@@ -13,9 +14,25 @@ class CategoriesService {
         })
     }
 
+    async patchCategory(id, data) {
+        return await this.prisma.category.update({
+            where: {
+                id
+            },
+            data
+        })
+    }
+
     // params
     async getCategories() {
-        return await this.prisma.category.findMany({
+        return await this.prisma.category.findMany({})
+    }
+
+    async getCategory(id) {
+        return await this.prisma.category.findUnique({
+            where: {
+                id
+            }
         })
     }
 
@@ -60,6 +77,19 @@ class CategoriesService {
         } catch (e) {
             console.log(e)
         }
+    }
+
+    async getPostsWithCategory(params) {
+        return await postsService.getPosts({
+            status: params.status,
+            categories: {
+                every: {
+                    category: {
+                        id: params.id
+                    }
+                }
+            }
+        })
     }
 }
 
