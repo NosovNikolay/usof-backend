@@ -32,9 +32,11 @@ class PostsService {
 
     async getPosts(params) {
         const posts = await this.prisma.post.findMany({
+            where: params,
             select: {
                 content: true,
                 title: true,
+                id: true,
                 author: {
                     select: {
                         login: true,
@@ -62,10 +64,7 @@ class PostsService {
 
     async getPost(params) {
         return await this.prisma.post.findUnique({
-            where: {
-                id: params.id,
-                isActive: params.isActive
-            },
+            where: params,
             select: {
                 id: true,
                 content: true,
@@ -78,7 +77,12 @@ class PostsService {
                     }
                 },
 
-                // comments
+                comments: {
+                    select: {
+                        author: true,
+                        content: true
+                    }
+                },
 
                 categories: {
                     select: {
@@ -94,10 +98,39 @@ class PostsService {
         })
     }
 
+    async getCategoriesOfPost(id) {
+        return await this.prisma.category.findMany({
+            where: {
+                posts: {
+                    some: {
+                        post: {
+                            id
+                        }
+                    }
+                }
+            }
+        })
+    }
+
     async deletePost(id) {
-        return await this.prisma.post.delete({
+        const deletePostCategories = this.prisma.CategoriesOnPosts.deleteMany({
+            where: {
+                postId: id
+            }
+        })
+
+        // const Delete all Likes
+        // const Delete all Commenst
+
+        const deletePost = this.prisma.post.delete({
             where: id
         })
+
+        try {
+            return this.prisma.$transaction([deletePostCategories, deletePost])
+        } catch (e) {
+            console.log(e)
+        }
     }
 
 }
