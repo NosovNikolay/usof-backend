@@ -1,7 +1,7 @@
 const createUser = {
     body: {
         type: 'object',
-        required: [ 'login', 'password', 'email'],
+        required: [ 'login', 'password', 'email', 'role'],
         properties: {
             login: {
                 type: 'string'
@@ -16,32 +16,51 @@ const createUser = {
             },
             full_name: {
                 type: ['string', 'null']
+            },
+            role: {
+                type: ['string'],
+                enum: ['ADMIN', 'USER']
             }
         },
         additionalProperties: false
     },
-    response: {
-        // The 200 body response is described
-        // by the following schema
-        200: {
-            type: 'object',
-            properties: {
-                userId: { type: 'string' }
+}
+const patchUser = {
+    body: {
+        type: 'object',
+        required: [ 'full_name'],
+        properties: {
+            full_name: {
+                type: ['string']
             },
-            additionalProperties: false
         },
+        additionalProperties: false
+    },
+    params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+            id: {
+                type: 'string'
+            }
+        }
     }
 }
 
 const getUser = {
     params: {
-        id: {
-            type: 'string'
+        type: 'object',
+        required: ['id'],
+        properties: {
+            id: {
+                type: 'string'
+            }
         }
-    },
+    }
 }
 
 export const userSchema = {
     getUser,
     createUser,
+    patchUser
 }

@@ -19,12 +19,21 @@ class UsersService {
     }
 
     async getUsers () {
-        return await this.prisma.user.findMany({})
+        return await this.prisma.user.findMany({
+            select: {
+                id: true,
+                email: true,
+                full_name: true,
+                rating: true,
+                role: true
+            }
+        })
     }
 
     async createUser(userInfo) {
         try {
             userInfo.password = await bcrypt.hash(userInfo.password, 10)
+            console.log(userInfo)
             return await this.prisma.user.create({data: userInfo});
         } catch (e) {
             // need to create custom error handler with db replies
@@ -49,11 +58,11 @@ class UsersService {
         }
     }
 
-    async updateUser (userData) {
+    async updateUser (userData, id) {
         try {
             return await this.prisma.user.update({
                 where: {
-                    id: userData.id
+                    id
                 },
                 data: userData,
             });
@@ -68,6 +77,7 @@ class UsersService {
     }
 
     async deleteUser(id) {
+
         try {
             return await this.prisma.user.delete({
                 where: {

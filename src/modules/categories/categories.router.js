@@ -1,18 +1,18 @@
 import {categoriesService} from './categories.service.js'
-
+import {categoriesSchema} from "./categories.schema.js";
 export async function categoriesRouter(fastify, options) {
-    // fastify.addHook('onRequest', fastify.authenticate);
-    // fastify.addHook('onRequest', fastify.admin);
+    fastify.addHook('onRequest', fastify.authenticate);
+    fastify.addHook('onRequest', fastify.admin);
 
     fastify.get('/api/categories', getCategoriesHandler)
-    fastify.get('/api/categories/:id', getCategoryHandler)
-    fastify.get('/api/categories/:category_id/posts', getPostsHandler)
+    fastify.get('/api/categories/:id', {schema: categoriesSchema.getCategory}, getCategoryHandler)
+    fastify.get('/api/categories/:id/posts', {schema: categoriesSchema.getCategory}, getPostsHandler)
 
-    fastify.post('/api/categories', createCategoryHandler)
+    fastify.post('/api/categories', {schema: categoriesSchema.createCategory}, createCategoryHandler)
 
-    fastify.patch('/api/categories/:id', updateCategoryHandler)
+    fastify.patch('/api/categories/:id', {schema: categoriesSchema.patchCategory}, updateCategoryHandler)
 
-    fastify.delete('/api/categories/:id', deleteCategoryHandler)
+    fastify.delete('/api/categories/:id', {schema: categoriesSchema.getCategory}, deleteCategoryHandler)
 }
 
 async function getCategoryHandler(req, rep) {
@@ -28,7 +28,7 @@ async function deleteCategoryHandler(req, rep) {
     return categoriesService.deleteCategory(req.query.id)
 }
 async function getPostsHandler(req, rep) {
-    return categoriesService.getPostsWithCategory({id: req.params.category_id, status: req?.user?.role === 'ADMIN' ? undefined : 'ACTIVE'});
+    return categoriesService.getPostsWithCategory({id: req.params.id, status: req?.user?.role === 'ADMIN' ? undefined : 'ACTIVE'});
 }
 async function updateCategoryHandler(req, res) {
     return categoriesService.patchCategory(req.params.id, {title: req?.body?.title, description: req?.body?.description})

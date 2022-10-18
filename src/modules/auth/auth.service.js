@@ -19,7 +19,7 @@ export class AuthService {
                 console.log('Email send')
             });
             setTimeout(async () => {
-                await prisma.user.delete({
+                await prisma.user.deleteMany({
                     where: {
                         isActivated: false
                     }
@@ -36,10 +36,16 @@ export class AuthService {
     }
 
     async login (loginInfo) {
-        const user = await usersService.getUser({login: loginInfo.login});
+        const user = await this.prisma.user.findUnique({
+        where: {
+            login: loginInfo.login
+        }
+        });
         if (!user ||
             !bcrypt.compareSync(loginInfo.password, user.password))
             throw new createError('FST_DB', 'Wrong email or password', 404, )();
+        if (!user.isActivated)
+            throw new createError('FST_DB', 'Activate your account', 404, )();
         return user;
     }
 

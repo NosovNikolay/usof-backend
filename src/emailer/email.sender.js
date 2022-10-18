@@ -34,9 +34,9 @@ export async function confirmAccount(userMail, token) {
 export async function changePassword(userMail, token) {
 
     let info = await transporter.sendMail({
-        from: '"Fred Foo 👻" <foo@example.com>', // sender address
+        from: 'Usof API', // sender address
         to: `${userMail}`, // list of receivers
-        subject: "Hello ✔", // Subject line
+        subject: "Hello, change your password", // Subject line
         text: `${env.RESET_PASSWORD_PATH + token}`, // plain text body
         html: `${env.RESET_PASSWORD_PATH + token}`, // html body
     });
