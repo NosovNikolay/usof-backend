@@ -55,7 +55,7 @@ model Comment {
   postId      String
   author      User     @relation(fields: [authorId], references: [id])
   authorId    String
-  status      Status     @default(ACTIVE)
+  status      Status   @default(ACTIVE)
   publishDate DateTime @default(now())
   content     String
 }
@@ -66,6 +66,7 @@ model Like {
   author       User   @relation(fields: [authorId], references: [id])
   authorId     String
   post_comment String
+  @@unique([authorId, post_comment])
 }
 
 enum Type {
